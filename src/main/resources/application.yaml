@@ -1,0 +1,4 @@
+telegram:
+  bot:
+    token: ${BOT_TOKEN}
+    username: danekerscode_for_ru_lang_bot
