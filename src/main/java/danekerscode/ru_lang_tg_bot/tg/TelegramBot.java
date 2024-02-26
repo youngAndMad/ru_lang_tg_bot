@@ -42,6 +42,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private final ConcurrentHashMap<Long, Long> userQuizState = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Long> userAdviceCount = new ConcurrentHashMap<>();
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -80,10 +82,27 @@ public class TelegramBot extends TelegramLongPollingBot {
                         MIDDLE_ORATOR_SKILL_LEVEL -> processOratorSkillLevelAnswer(message);
                 case START_QUIZ -> processQuiz(message);
                 case HOW_TO_IMPROVE_ORATOR_SKILL -> {
-                    var sendMessage = new SendMessage(String.valueOf(message.getChatId()), "Ты выбрал улучшение ораторских навыков");
+                    var count = userAdviceCount.getOrDefault(message.getChatId(), 1L);
+                    var sendMessage = new SendMessage(String.valueOf(message.getChatId()), "Вот тебе совет: " + getRandom(HOW_TO_IMPROVE_ORATOR_SKILL_ADVICES));
+                    processMessageSending(sendMessage);
+                    userAdviceCount.put(message.getChatId(), count + 1);
+                }
+                case HOW_TO_IMPROVE_PUBLIC_SPEECH -> {
+                    var count = userAdviceCount.getOrDefault(message.getChatId(), 1L);
+                    var sendMessage = new SendMessage(String.valueOf(message.getChatId()), "Вот тебе совет: " + getRandom(HOW_TO_IMPROVE_PUBLIC_SPEECH_ADVICES));
+                    processMessageSending(sendMessage);
+                    userAdviceCount.put(message.getChatId(), count + 1);
+                }
+            }
+
+            if (text.equals(HOW_TO_IMPROVE_PUBLIC_SPEECH) || text.equals(HOW_TO_IMPROVE_ORATOR_SKILL)) {
+                var count = userAdviceCount.getOrDefault(message.getChatId(), 1L);
+                if (count % 5 == 0) {
+                    var sendMessage = new SendMessage(String.valueOf(message.getChatId()), "Ты уже получил %d совета. Вижу ты очень стараешься.".formatted(count));
                     processMessageSending(sendMessage);
                 }
             }
+
         }
     }
 
@@ -133,7 +152,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             processMessageSending(sendMessage);
         }
 
-        if (currentUserState == 8){
+        if (currentUserState == 8) {
             var sendMessage = new SendMessage(chatId, "Тест завершен. Твой уровень примерно как ты предполагал");
             processMessageSending(sendMessage);
             sendMessage.setText("Если ты хочешь получить советы выберу по какому поводу ты хочешь получить советы");
@@ -141,7 +160,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage.setReplyMarkup(replyMarkup);
             processMessageSending(sendMessage);
             userQuizState.remove(message.getChatId());
-        }else {
+        } else {
 
             var question = QUIZ_QUESTIONS.get(currentUserState);
             var sendMessage = new SendMessage(chatId, question.value());
@@ -199,6 +218,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         inlineKeyboardMarkup.setKeyboard(keyboard);
 
         return inlineKeyboardMarkup;
+    }
+
+    private String getRandom(List<String> list) {
+        var random = new Random();
+        return list.get(random.nextInt(list.size()));
     }
 
 }
