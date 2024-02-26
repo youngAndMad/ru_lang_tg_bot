@@ -79,6 +79,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                         BEGIN_ORATOR_SKILL_LEVEL,
                         MIDDLE_ORATOR_SKILL_LEVEL -> processOratorSkillLevelAnswer(message);
                 case START_QUIZ -> processQuiz(message);
+                case HOW_TO_IMPROVE_ORATOR_SKILL -> {
+                    var sendMessage = new SendMessage(String.valueOf(message.getChatId()), "Ты выбрал улучшение ораторских навыков");
+                    processMessageSending(sendMessage);
+                }
             }
         }
     }
@@ -133,7 +137,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             var sendMessage = new SendMessage(chatId, "Тест завершен. Твой уровень примерно как ты предполагал");
             processMessageSending(sendMessage);
             sendMessage.setText("Если ты хочешь получить советы выберу по какому поводу ты хочешь получить советы");
-            var replyMarkup = createReplyKeyboardMarkup("Как улучшить ораторские навыки", "Как улучшить публичные выступления");
+            var replyMarkup = createReplyKeyboardMarkup(HOW_TO_IMPROVE_ORATOR_SKILL, HOW_TO_IMPROVE_PUBLIC_SPEECH);
             sendMessage.setReplyMarkup(replyMarkup);
             processMessageSending(sendMessage);
             userQuizState.remove(message.getChatId());
@@ -142,7 +146,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             var question = QUIZ_QUESTIONS.get(currentUserState);
             var sendMessage = new SendMessage(chatId, question.value());
 
-            var replyMarkup = createInlineKeyboarMarkup(question.answers().toArray(new String[0]));
+            var replyMarkup = createInlineKeyboardMarkup(question.answers().toArray(new String[0]));
             sendMessage.setReplyMarkup(replyMarkup);
             processMessageSending(sendMessage);
 
@@ -177,7 +181,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return replyMarkup;
     }
 
-    private InlineKeyboardMarkup createInlineKeyboarMarkup(
+    private InlineKeyboardMarkup createInlineKeyboardMarkup(
             String... buttons
     ) {
         var inlineKeyboardMarkup = new InlineKeyboardMarkup();

@@ -78,5 +78,11 @@ public class TgBotConstants {
                         "в) Часто теряю нить рассказа.")));
 
     }};
+
+    public static final String HOW_TO_IMPROVE_ORATOR_SKILL = "Как улучшить ораторские навыки";
+    public static final String HOW_TO_IMPROVE_PUBLIC_SPEECH = "Как улучшить публичные выступления";
+
+    public static final List<String> HOW_TO_IMPROVE_ORATOR_SKILL_ADVICES = List
+            .of();
 }
 
